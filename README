@@ -1,3 +1,7 @@
+This is a (quick and untested) port of classic Rails Acts As List to Mongo Mapper.
+
+
+
 ActsAsList
 ==========
 
@@ -7,13 +11,20 @@ This acts_as extension provides the capabilities for sorting and reordering a nu
 Example
 =======
 
-  class TodoList < ActiveRecord::Base
+  class TodoList
     has_many :todo_items, :order => "position"
   end
 
-  class TodoItem < ActiveRecord::Base
+  class TodoItem
+		
+		include MongoMapper::Document
+		include MongoMapper::Acts::List
+		
+		key :todo_list_id, ObjectId
     belongs_to :todo_list
+
     acts_as_list :scope => :todo_list
+
   end
 
   todo_list.first.move_to_bottom
