@@ -96,15 +96,13 @@ module MongoMapper
     # Increase the position of this item without adjusting the rest of the list.
     def increment_position
       return unless in_list?
-			acts_as_list_class.set( id, position_column => self.send(position_column)+1 )
-			self[position_column] += 1 # this is bit of a hack as MongoMapper does not have update_attribute
+			self.set( position_column => self.send(position_column)+1 )
     end
 
     # Decrease the position of this item without adjusting the rest of the list.
     def decrement_position
       return unless in_list?
-			acts_as_list_class.set( id, position_column => self.send(position_column)-1 )
-			self[position_column] -= 1 # this is bit of a hack as MongoMapper does not have update_attribute
+			self.set( position_column => self.send(position_column)-1 )
     end
 
     # Return +true+ if this object is the first in the list.
@@ -172,16 +170,12 @@ module MongoMapper
 
       # Forces item to assume the bottom position in the list.
       def assume_bottom_position
-				pos = bottom_position_in_list(self).to_i+1
-				self[position_column] = pos # this is bit of a hack as MongoMapper does not have update_attribute
-				acts_as_list_class.set( id, position_column => pos )
+				self.set( position_column => bottom_position_in_list(self).to_i+1 )
       end
 
       # Forces item to assume the top position in the list.
       def assume_top_position
-				pos = 1
-				self[position_column] = pos # this is bit of a hack as MongoMapper does not have update_attribute
-				acts_as_list_class.set( id, position_column => pos )
+				self.set( position_column => 1 )
       end
 
       # This has the effect of moving all the higher items up one.
@@ -223,8 +217,7 @@ module MongoMapper
       def insert_at_position(position)
         remove_from_list
         increment_positions_on_lower_items(position)
-				self[position_column] = position # this is bit of a hack as MongoMapper does not have update_attribute
-				acts_as_list_class.set( id, position_column => position )
+				self.set( position_column => position )
       end
 
   end
