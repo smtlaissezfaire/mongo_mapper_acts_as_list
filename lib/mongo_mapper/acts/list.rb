@@ -138,7 +138,7 @@ module MongoMapper
       !send(position_column).nil?
     end
 
-    # private
+    private
       def add_to_list_top
         increment_positions_on_all_items
       end
