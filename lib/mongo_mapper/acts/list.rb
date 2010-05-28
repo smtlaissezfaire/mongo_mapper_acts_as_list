@@ -182,7 +182,7 @@ module MongoMapper
       def decrement_positions_on_higher_items(position)
 				conditions = scope_condition
 				conditions.merge( { position_column => { '$lt' => position } } )
-				acts_as_list_class.decrement( conditions, { position_column => -1 } ) 
+				acts_as_list_class.decrement( conditions, { position_column => 1 } ) 
       end
 
       # This has the effect of moving all the lower items up one.
@@ -190,7 +190,7 @@ module MongoMapper
         return unless in_list?
 				conditions = scope_condition
 				conditions.merge( { position_column => { '$gt' => self.send(position_column).to_i } } )
-				acts_as_list_class.decrement( conditions, { position_column => -1 } )
+				acts_as_list_class.decrement( conditions, { position_column => 1 } )
       end
 
       # This has the effect of moving all the higher items down one.
