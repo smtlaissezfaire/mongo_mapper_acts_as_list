@@ -89,19 +89,24 @@ module MongoMapper
       if in_list?
         decrement_positions_on_lower_items
 				self.set( position_column => nil )
+				self[position_column] = nil
       end
     end
 
     # Increase the position of this item without adjusting the rest of the list.
     def increment_position
       return unless in_list?
-			self.set( position_column => self.send(position_column)+1 )
+			pos = self.send(position_column)+1
+			self.set( position_column => pos )
+			self[position_column] = pos
     end
 
     # Decrease the position of this item without adjusting the rest of the list.
     def decrement_position
       return unless in_list?
-			self.set( position_column => self.send(position_column)-1 )
+			pos = self.send(position_column)-1
+			self.set( position_column => pos )
+			self[position_column] = pos
     end
 
     # Return +true+ if this object is the first in the list.
@@ -137,11 +142,14 @@ module MongoMapper
       !send(position_column).nil?
     end
 
+		# sorts all items in the list
+		# if two items have same position, the one created more recently goes first
 		def sort
 			conditions = scope_condition
-			list_items = acts_as_list_class.all(:conditions => conditions, :order => "#{position_column} asc")
+			list_items = acts_as_list_class.all(:conditions => conditions, :order => "#{position_column} asc, created_at desc")
 			list_items.each_with_index do |list_item, index|
 				list_item.set( position_column => index+1 )
+				list_item[position_column] = index+1
 			end
 		end
 
@@ -177,12 +185,15 @@ module MongoMapper
 
       # Forces item to assume the bottom position in the list.
       def assume_bottom_position
-				self.set( position_column => bottom_position_in_list(self).to_i+1 )
+				pos = bottom_position_in_list(self).to_i+1
+				self.set( position_column => pos )
+				self[position_column] = bottom_position_in_list(pos)
       end
 
       # Forces item to assume the top position in the list.
       def assume_top_position
 				self.set( position_column => 1 )
+				self[position_column] = 1
       end
 
       # This has the effect of moving all the higher items up one.
@@ -225,6 +236,7 @@ module MongoMapper
         remove_from_list
         increment_positions_on_lower_items(position)
 				self.set( position_column => position )
+				self[position_column] = position
       end
 
   end
