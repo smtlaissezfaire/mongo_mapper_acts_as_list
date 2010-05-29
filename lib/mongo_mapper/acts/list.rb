@@ -46,7 +46,7 @@ module MongoMapper
   module InstanceMethods
 
 		# Insert the item at the given position (defaults to the top position of 1).
-    def insert_at(position = 1)
+    def insert_in_list_at(position = 1)
       insert_at_position(position)
     end
 
