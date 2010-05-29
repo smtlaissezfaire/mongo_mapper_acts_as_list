@@ -126,7 +126,7 @@ module MongoMapper
       return nil unless in_list?
 			conditions = scope_condition
 			conditions.merge!( { position_column.to_sym.lt => self.send(position_column).to_i} )
-			acts_as_list_class.first( :conditions => conditions, :order => "#{position_column} asc" ) 
+			acts_as_list_class.first( :conditions => conditions, :order => "#{position_column} desc" ) 
     end
 
     # Return the next lower item in the list.
