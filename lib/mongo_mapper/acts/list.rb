@@ -137,6 +137,14 @@ module MongoMapper
       !send(position_column).nil?
     end
 
+		def sort
+			conditions = scope_condition
+			list_items = acts_as_list_class.all(:conditions => conditions, :order => "#{position_column} asc")
+			list_items.each_with_index do |list_item, index|
+				list_item.set( position_column => index+1 )
+			end
+		end
+
     private
       def add_to_list_top
         increment_positions_on_all_items
