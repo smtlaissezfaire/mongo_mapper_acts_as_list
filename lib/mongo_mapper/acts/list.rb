@@ -38,7 +38,7 @@ module MongoMapper
 					#{scope_condition_method}
 
 					before_destroy :remove_from_list
-					before_create  :add_to_list_bottom
+					before_create  :add_to_list_bottom, :unless => :in_list?
 				EOV
 		end
   end
