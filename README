@@ -1,13 +1,12 @@
 This is a port of classic +acts_as_list+ to Mongo Mapper.
 
-It has (almost) the same functionality and passes the original test-suite. 
-Scope needs to be defined as symbol or array of symbols.
+It has (almost) the same functionality and passes the original test-suite. Scope needs to be defined as symbol or array of symbols. It does not work for Embedded Documents.
 
 
 ActsAsList
 ==========
 
-This acts_as extension provides the capabilities for sorting and reordering a number of objects in a list. If you do not specify custom position +column+ in the options, a key named +position+ will be used automatically.
+This acts_as MongoMapper plugin provides the capabilities for sorting and reordering a number of objects in a list. If you do not specify custom position +column+ in the options, a key named +position+ will be used automatically.
 
 
 Example
