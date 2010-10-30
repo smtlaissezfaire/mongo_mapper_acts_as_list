@@ -1,4 +1,5 @@
-This is a (quick and untested) port of classic +acts_as_list+ to Mongo Mapper.
+This is a port of classic +acts_as_list+ to Mongo Mapper.
+It has (almost) the same functionality and passes the original test-suite.
 
 
 
@@ -18,12 +19,13 @@ Example
   class TodoItem
 		
 		include MongoMapper::Document
-		include MongoMapper::Acts::List
+		
+		plugin MongoMapper::Plugins::ActsAsList
 		
 		key :todo_list_id, ObjectId
     belongs_to :todo_list
 
-    acts_as_list :scope => :todo_list
+    acts_as_list :scope => :todo_list_id
 
   end
 
