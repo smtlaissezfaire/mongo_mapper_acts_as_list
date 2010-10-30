@@ -1,6 +1,7 @@
 This is a port of classic +acts_as_list+ to Mongo Mapper.
-It has (almost) the same functionality and passes the original test-suite.
 
+It has (almost) the same functionality and passes the original test-suite. 
+Scope needs to be defined as symbol or array of symbols.
 
 
 ActsAsList
