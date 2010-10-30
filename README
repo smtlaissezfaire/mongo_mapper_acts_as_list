@@ -17,12 +17,12 @@ Example
   end
 
   class TodoItem
-		
-		include MongoMapper::Document
-		
-		plugin MongoMapper::Plugins::ActsAsList
-		
-		key :todo_list_id, ObjectId
+    
+    include MongoMapper::Document
+    
+    plugin MongoMapper::Plugins::ActsAsList
+    
+    key :todo_list_id, ObjectId
     belongs_to :todo_list
 
     acts_as_list :scope => :todo_list_id
