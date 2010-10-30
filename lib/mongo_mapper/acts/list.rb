@@ -18,7 +18,7 @@ module MongoMapper
 				    if #{configuration[:scope].to_s}.nil?
 				      {}
 				    else
-							{ "#{configuration[:scope].to_s}" => "\#{#{configuration[:scope].to_s}}" }.symbolize_keys!
+							{ "#{configuration[:scope].to_s}" => "\#{#{configuration[:scope].to_s}}".to_i }.symbolize_keys!
 				    end
 				  end
 				)
@@ -28,7 +28,7 @@ module MongoMapper
 					include MongoMapper::Acts::List::InstanceMethods
 
 					def acts_as_list_class
-					  ::#{self.name}
+					  self.class
 					end
 
 					def position_column
@@ -46,14 +46,13 @@ module MongoMapper
   module InstanceMethods
 
 		# Insert the item at the given position (defaults to the top position of 1).
-    def insert_in_list_at(position = 1)
+    def insert_at(position = 1)
       insert_at_position(position)
     end
 
     # Swap positions with the next lower item, if one exists.
     def move_lower
       return unless lower_item
-
 			lower_item.decrement_position
       increment_position
     end
@@ -61,7 +60,6 @@ module MongoMapper
     # Swap positions with the next higher item, if one exists.
     def move_higher
       return unless higher_item
-
       higher_item.increment_position
       decrement_position
     end
@@ -70,7 +68,6 @@ module MongoMapper
     # position adjusted accordingly.
     def move_to_bottom
       return unless in_list?
-
       decrement_positions_on_lower_items
       assume_bottom_position
     end
@@ -79,7 +76,6 @@ module MongoMapper
     # position adjusted accordingly.
     def move_to_top
       return unless in_list?
-
       increment_positions_on_higher_items
       assume_top_position
     end
@@ -88,25 +84,23 @@ module MongoMapper
     def remove_from_list
       if in_list?
         decrement_positions_on_lower_items
-				self.set( position_column => nil )
 				self[position_column] = nil
+				save!
       end
     end
 
     # Increase the position of this item without adjusting the rest of the list.
     def increment_position
       return unless in_list?
-			pos = self.send(position_column)+1
-			self.set( position_column => pos )
-			self[position_column] = pos
+			self[position_column] = self.send(position_column).to_i + 1
+			save!
     end
 
     # Decrease the position of this item without adjusting the rest of the list.
     def decrement_position
       return unless in_list?
-			pos = self.send(position_column)-1
-			self.set( position_column => pos )
-			self[position_column] = pos
+			self[position_column] = self.send(position_column).to_i - 1
+			save!
     end
 
     # Return +true+ if this object is the first in the list.
@@ -125,16 +119,16 @@ module MongoMapper
     def higher_item
       return nil unless in_list?
 			conditions = scope_condition
-			conditions.merge!( { position_column.to_sym.lt => self.send(position_column).to_i} )
-			acts_as_list_class.first( :conditions => conditions, :order => "#{position_column} desc" ) 
+			conditions.merge!( { position_column.to_sym.lt => send(position_column).to_i} )
+			acts_as_list_class.where(conditions).order("#{position_column} desc").first
     end
 
     # Return the next lower item in the list.
     def lower_item
       return nil unless in_list?
 			conditions = scope_condition
-			conditions.merge!( { position_column.to_sym.gt => self.send(position_column).to_i} )
-			acts_as_list_class.first( :conditions => conditions, :order => "#{position_column} asc" ) 
+			conditions.merge!( { position_column.to_sym.gt => self.send(position_column).to_i } )
+			acts_as_list_class.where(conditions).order("#{position_column} asc").first
     end
 
     # Test if this record is in a list
@@ -144,16 +138,17 @@ module MongoMapper
 
 		# sorts all items in the list
 		# if two items have same position, the one created more recently goes first
-		def sort
-			conditions = scope_condition
-			list_items = acts_as_list_class.all(:conditions => conditions, :order => "#{position_column} asc, created_at desc")
-			list_items.each_with_index do |list_item, index|
-				list_item.set( position_column => index+1 )
-				list_item[position_column] = index+1
-			end
-		end
+		# def sort
+		# 	conditions = scope_condition
+		# 	list_items = acts_as_list_class.all(:conditions => conditions, :order => "#{position_column} asc, created_at desc")
+		# 	list_items.each_with_index do |list_item, index|
+		# 		list_item.set( position_column => index+1 )
+		# 		list_item[position_column] = index+1
+		# 	end
+		# end
 
-    private
+    # private
+
       def add_to_list_top
         increment_positions_on_all_items
       end
@@ -177,30 +172,27 @@ module MongoMapper
       # Returns the bottom item
       def bottom_item(except = nil)				
 				conditions = scope_condition
-				conditions.merge!( { :id.ne => except.id } ) if except
-				acts_as_list_class.first( 
-					:conditions => conditions, 
-					:order => "#{position_column} desc" ) 
+				conditions.merge!( { position_column.to_sym.ne => except.send(position_column) } ) if except
+				acts_as_list_class.where(conditions).order("#{position_column} desc").first
       end
 
       # Forces item to assume the bottom position in the list.
       def assume_bottom_position
-				pos = bottom_position_in_list(self).to_i+1
-				self.set( position_column => pos )
-				self[position_column] = bottom_position_in_list(pos)
+				self[position_column] = bottom_position_in_list.to_i + 1
+				save!
       end
 
       # Forces item to assume the top position in the list.
       def assume_top_position
-				self.set( position_column => 1 )
 				self[position_column] = 1
+				save!
       end
 
       # This has the effect of moving all the higher items up one.
       def decrement_positions_on_higher_items(position)
 				conditions = scope_condition
-				conditions.merge!( { position_column.to_sym.lt => position } )
-				acts_as_list_class.decrement( conditions, { position_column => 1 } ) 
+				onditions.merge!( { position_column.to_sym.lt => position } )
+				acts_as_list_class.decrement( conditions, { position_column => 1 } )
       end
 
       # This has the effect of moving all the lower items up one.
@@ -235,8 +227,8 @@ module MongoMapper
       def insert_at_position(position)
         remove_from_list
         increment_positions_on_lower_items(position)
-				self.set( position_column => position )
 				self[position_column] = position
+				save!
       end
 
   end
