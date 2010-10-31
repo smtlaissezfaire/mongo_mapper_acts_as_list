@@ -2,6 +2,7 @@ require 'rubygems'
 require 'bundler/setup'
 require 'rake'
 require 'rake/testtask'
+require File.expand_path('../lib/mongo_mapper/plugins/version', __FILE__)
 
 Rake::TestTask.new do |t|
   t.libs = %w(test)
