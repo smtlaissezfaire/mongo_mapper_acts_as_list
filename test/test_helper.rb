@@ -8,8 +8,8 @@ require 'test/unit'
 
 
 class ActiveSupport::TestCase
-	
-	# Drop all collections after each test case.
+  
+  # Drop all collections after each test case.
   def teardown
     MongoMapper.database.collections.each { |coll| coll.remove }
   end
