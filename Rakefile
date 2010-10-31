@@ -28,5 +28,5 @@ task :release => :build do
   sh "git tag v#{MongoMapper::Plugins::ActsAsList::Version}"
   sh "git push origin master"
   sh "git push origin v#{MongoMapper::Plugins::ActsAsList::Version}"
-  sh "gem push mm_dirtier-#{MongoMapper::Plugins::ActsAsList::Version}.gem"
+  sh "gem push mongo_mapper_acts_as_list-#{MongoMapper::Plugins::ActsAsList::Version}.gem"
 end
