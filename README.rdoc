@@ -1,0 +1,35 @@
+= mongo_mapper_acts_as_list
+
+This is a port of classic Rails' {acts_as_list}[http://github.com/rails/acts_as_list] to Mongo Mapper. This MongoMapper plugin provides the capabilities for sorting and reordering a number of objects in a list. If you do not specify custom position column in the options, a key named position will be used by default.
+
+It has (almost) the same functionality and passes the original test-suite. Scope needs to be defined as symbol or array of symbols. It does not work for Embedded Documents.
+
+== Installation
+
+mongo_mapper_acts_as_list is available as RubyGem:
+
+	gem install mongo_mapper_acts_as_list
+	
+== Example
+
+  class TodoList
+		include MongoMapper::Document
+		
+    many :todo_items, :order => "position"
+  end
+
+  class TodoItem
+    include MongoMapper::Document
+    plugin MongoMapper::Plugins::ActsAsList
+    
+    key :todo_list_id, ObjectId
+    belongs_to :todo_list
+
+    acts_as_list :scope => :todo_list_id
+  end
+
+  todo_list.first.move_to_bottom
+  todo_list.last.move_higher
+
+
+Original acts_as_list Copyright (c) 2007 David Heinemeier Hansson, released under the MIT license
