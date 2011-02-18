@@ -1,9 +1,12 @@
 module MongoMapper
   module Plugins
     module ActsAsList
+      
+      extend ActiveSupport::Concern
 
-      require 'mongo_mapper'
-  
+
+
+      # ----------------------------------------------------------------------
       module ClassMethods
         def acts_as_list(options = {})
           configuration = { :column => "position", :scope => {} }
@@ -32,8 +35,6 @@ module MongoMapper
           end
       
           class_eval <<-EOV
-            include MongoMapper::Plugins::ActsAsList::InstanceMethods
-
             def acts_as_list_class
               ::#{self.name}
             end
@@ -53,6 +54,7 @@ module MongoMapper
 
 
 
+      # ----------------------------------------------------------------------
       module InstanceMethods
         # Insert the item at the given position (defaults to the top position of 1).
         def insert_at(position = 1)
