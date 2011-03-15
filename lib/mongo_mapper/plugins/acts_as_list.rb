@@ -31,7 +31,7 @@ module MongoMapper
               end
             )
           else
-            scope_condition_method = "def scope_condition() \"#{configuration[:scope]}\" end"
+            scope_condition_method = "def scope_condition() #{configuration[:scope].to_json} end"
           end
       
           class_eval <<-EOV
