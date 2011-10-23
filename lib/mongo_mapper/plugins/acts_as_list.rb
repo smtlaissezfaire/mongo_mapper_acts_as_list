@@ -43,7 +43,7 @@ module MongoMapper
             end
           else
             define_method "scope_condition" do
-              configuration[:scope].to_json
+              configuration[:scope]
             end
           end
           

@@ -7,6 +7,15 @@ require 'test_helper'
 
 
 
+class ListItem
+  
+  include MongoMapper::Document
+  include MongoMapper::Plugins::ActsAsList
+  
+  acts_as_list
+  
+end
+
 class ListMixin
   
   include MongoMapper::Document
@@ -35,6 +44,26 @@ class ListMixinWithArrayScope
   key :parent_id, Integer
 
   acts_as_list :column => :pos, :scope => [:parent_id, :original_id]
+  
+end
+
+
+
+# ---------------------------------------------------------------------
+
+
+
+class SetupTest < ActiveSupport::TestCase
+  
+  def test_position_key
+    assert ListItem.new.keys.include?('position')
+  end
+  
+  def test_scope_condition
+    assert_equal ListItem.new.scope_condition, {}
+    assert_equal ListMixin.new(:parent_id => 5).scope_condition, {:parent_id => 5}
+    assert_equal ListMixinWithArrayScope.new(:parent_id => 5, :original_id => 6).scope_condition, {:parent_id => 5, :original_id => 6}
+  end
   
 end
 
