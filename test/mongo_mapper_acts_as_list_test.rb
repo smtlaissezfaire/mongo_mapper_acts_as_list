@@ -64,6 +64,26 @@ end
 
 
 
+class ComparableTest < ActiveSupport::TestCase
+  
+  def setup
+    @lm1 = ListMixin.create!
+    @lm2 = ListMixin.create!
+    @lm3 = ListMixin.create!
+  end
+  
+  def test_comparable
+    assert_equal [@lm3, @lm2, @lm1].sort, [@lm1, @lm2, @lm3]
+  end
+  
+end
+
+
+
+# ---------------------------------------------------------------------
+
+
+
 class ActiveSupport::TestCase
 	
 	private

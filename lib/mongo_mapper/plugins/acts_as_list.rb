@@ -13,64 +13,66 @@ module MongoMapper
       
       
       module ClassMethods
-        
         def acts_as_list(options = {})
+          
+          
+          
+          def self.included(base)
+            include Comparable
+          end
+          
+          
+          
           configuration = { :column => "position", :scope => {} }
           configuration.update(options) if options.is_a?(Hash)
-          
-          
-          
           configuration[:scope] = "#{configuration[:scope]}_id".intern if 
             configuration[:scope].is_a?(Symbol) && configuration[:scope].to_s !~ /_id$/
 
 
 
           if configuration[:scope].is_a?(Symbol)
-            scope_condition_method = %(
-              def scope_condition
-                { "#{configuration[:scope].to_s}" => send(:#{configuration[:scope].to_s}) }.symbolize_keys!
-              end
-            )
-            
+            define_method "scope_condition" do
+              { configuration[:scope] => send(configuration[:scope].to_s) }.symbolize_keys!
+            end
           elsif configuration[:scope].is_a?(Array)
-            scope_condition_method = %(
-              def scope_condition
-                attrs = %w(#{configuration[:scope].join(" ")}).inject({}) do |memo, column| 
-                  memo[column.intern] = send(column.intern)
-                  memo
-                end
-                attrs.symbolize_keys!
-              end
-            )
+            define_method "scope_condition" do
+              configuration[:scope].inject({}) { |memo, column| 
+                memo[column.intern] = send(column.intern)
+                memo
+              }.symbolize_keys!
+            end
           else
-            
-            scope_condition_method = %(
-              def scope_condition 
-                #{configuration[:scope].to_json} 
-              end
-            )
+            define_method "scope_condition" do
+              configuration[:scope].to_json
+            end
           end
-      
-      
-      
-          class_eval <<-EOV
+          
+          
+          
+          define_method "position_column" do
+            "#{configuration[:column]}"
+          end
+          
+          
+          
+          key configuration[:column], Integer
+          
+          
+          
+          before_destroy :decrement_positions_on_lower_items
+          before_create  :add_to_list_bottom
+          
+          
+          
+          class_eval <<-EOV          
             def acts_as_list_class
               ::#{self.name}
             end
-
-            def position_column
-              '#{configuration[:column]}'
-            end
-
-            #{scope_condition_method}
-            
-            key '#{configuration[:column]}', Integer
-
-            before_destroy :decrement_positions_on_lower_items
-            before_create  :add_to_list_bottom
           EOV
+          
+          
+          
         end
-    
       end
 
 
@@ -80,6 +82,10 @@ module MongoMapper
       
       
       module InstanceMethods
+        
+        def <=>(other)
+          self[position_column] <=> other[position_column]
+        end
         
         # Insert the item at the given position (defaults to the top position of 1).
         def insert_at(position = 1)
