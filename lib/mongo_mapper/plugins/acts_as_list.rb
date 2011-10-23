@@ -63,6 +63,8 @@ module MongoMapper
             end
 
             #{scope_condition_method}
+            
+            key '#{configuration[:column]}', Integer
 
             before_destroy :decrement_positions_on_lower_items
             before_create  :add_to_list_bottom
