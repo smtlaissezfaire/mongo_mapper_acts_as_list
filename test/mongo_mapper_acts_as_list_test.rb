@@ -2,18 +2,22 @@ require 'test_helper'
 
 
 
+# ---------------------------------------------------------------------
 # CLASS SETUP
 
-class ListMixin
-  include MongoMapper::Document
 
-  plugin MongoMapper::Plugins::ActsAsList
+
+class ListMixin
+  
+  include MongoMapper::Document
+  include MongoMapper::Plugins::ActsAsList
 
   key :pos, Integer
   key :parent_id, Integer
   key :original_id, Integer
 
   acts_as_list :column => :pos, :scope => :parent_id
+  
 end
 
 class ListMixinSub1 < ListMixin
@@ -23,19 +27,22 @@ class ListMixinSub2 < ListMixin
 end
 
 class ListMixinWithArrayScope
+  
   include MongoMapper::Document
-
-  plugin MongoMapper::Plugins::ActsAsList
+  include MongoMapper::Plugins::ActsAsList
 
   key :pos, Integer
   key :parent_id, Integer
 
   acts_as_list :column => :pos, :scope => [:parent_id, :original_id]
+  
 end
 
 
 
-# TESTS
+# ---------------------------------------------------------------------
+
+
 
 class ScopeTest < ActiveSupport::TestCase
 
@@ -53,6 +60,10 @@ end
 
 
 
+# ---------------------------------------------------------------------
+
+
+
 class ActiveSupport::TestCase
 	
 	private
@@ -65,6 +76,10 @@ class ActiveSupport::TestCase
 		ListMixin.where(:original_id => original_id).first
 	end
 end
+
+
+
+# ---------------------------------------------------------------------
 
 
 
@@ -231,6 +246,12 @@ class ListTest < ActiveSupport::TestCase
   
 end
 
+
+
+# ---------------------------------------------------------------------
+
+
+
 class ListSubTest < ActiveSupport::TestCase
 
   def setup
@@ -333,3 +354,9 @@ class ListSubTest < ActiveSupport::TestCase
   end
 
 end
+
+
+
+# ---------------------------------------------------------------------
+
+

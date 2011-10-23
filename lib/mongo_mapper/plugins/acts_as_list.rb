@@ -2,24 +2,36 @@ module MongoMapper
   module Plugins
     module ActsAsList
       
+      
+      
       extend ActiveSupport::Concern
 
 
 
-      # ----------------------------------------------------------------------
+      # =====================================================================
+      
+      
+      
       module ClassMethods
+        
         def acts_as_list(options = {})
           configuration = { :column => "position", :scope => {} }
           configuration.update(options) if options.is_a?(Hash)
           
-          configuration[:scope] = "#{configuration[:scope]}_id".intern if configuration[:scope].is_a?(Symbol) && configuration[:scope].to_s !~ /_id$/
-      
+          
+          
+          configuration[:scope] = "#{configuration[:scope]}_id".intern if 
+            configuration[:scope].is_a?(Symbol) && configuration[:scope].to_s !~ /_id$/
+
+
+
           if configuration[:scope].is_a?(Symbol)
             scope_condition_method = %(
               def scope_condition
                 { "#{configuration[:scope].to_s}" => send(:#{configuration[:scope].to_s}) }.symbolize_keys!
               end
             )
+            
           elsif configuration[:scope].is_a?(Array)
             scope_condition_method = %(
               def scope_condition
@@ -31,8 +43,15 @@ module MongoMapper
               end
             )
           else
-            scope_condition_method = "def scope_condition() #{configuration[:scope].to_json} end"
+            
+            scope_condition_method = %(
+              def scope_condition 
+                #{configuration[:scope].to_json} 
+              end
+            )
           end
+      
+      
       
           class_eval <<-EOV
             def acts_as_list_class
@@ -54,8 +73,12 @@ module MongoMapper
 
 
 
-      # ----------------------------------------------------------------------
+      # =====================================================================
+      
+      
+      
       module InstanceMethods
+        
         # Insert the item at the given position (defaults to the top position of 1).
         def insert_at(position = 1)
           insert_at_position(position)
@@ -150,8 +173,12 @@ module MongoMapper
           !send(position_column).nil?
         end
 
+
+
         private
-        
+
+
+
         def add_to_list_top
           increment_positions_on_all_items
         end
@@ -160,7 +187,9 @@ module MongoMapper
           self[position_column] = bottom_position_in_list.to_i+1
         end
 
-        def scope_condition() "1" end
+        def scope_condition
+          "1" 
+        end
           
         # Returns the bottom position number in the list.
         #   bottom_position_in_list    # => 2
@@ -228,8 +257,15 @@ module MongoMapper
           update_position( position )
         end
         
-
+        
+        
       end
+
+
+
+      # =====================================================================
+
+
 
     end
   end
